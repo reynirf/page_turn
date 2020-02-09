@@ -37,8 +37,10 @@ class _PageTurnWidgetState extends State<PageTurnWidget> {
     final pixelRatio = MediaQuery.of(context).devicePixelRatio;
     final boundary =
         _boundaryKey.currentContext.findRenderObject() as RenderRepaintBoundary;
-    final image = await boundary.toImage(pixelRatio: pixelRatio);
-    setState(() => _image = image);
+    try {
+      final image = await boundary.toImage(pixelRatio: pixelRatio);
+      setState(() => _image = image);
+    } catch (ex) {}
   }
 
   @override
