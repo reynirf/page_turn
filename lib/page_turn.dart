@@ -121,8 +121,8 @@ class PageTurnState extends State<PageTurn> with TickerProviderStateMixin {
             _controllers[pageNumber].value <= (widget.cutoff + 0.15)) {
           await nextPage();
         } else {
-          await _controllers[pageNumber].forward();
           if (_isLastPage) widget?.onLastPageCallback();
+          await _controllers[pageNumber].forward();
         }
       } else {
         if (!_isFirstPage &&
