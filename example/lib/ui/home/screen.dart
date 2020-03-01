@@ -22,15 +22,24 @@ class _HomeScreenState extends State<HomeScreen> {
         key: _controller,
         backgroundColor: Colors.white,
         showDragCutoff: false,
+        onPageTurnCallback: (pageNum) {
+          print(pageNum);
+        },
+        onLastPageCallback: () {
+          print('last');
+        },
+        onFirstPageCallback: () {
+          print('first');
+        },
         lastPage: Container(child: Center(child: Text('Last Page!'))),
         children: <Widget>[
-          for (var i = 0; i < 20; i++) AlicePage(page: i),
+          for (var i = 0; i < 5; i++) AlicePage(page: i),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.search),
         onPressed: () {
-          _controller.currentState.goToPage(2);
+          _controller.currentState.nextPage();
         },
       ),
     );

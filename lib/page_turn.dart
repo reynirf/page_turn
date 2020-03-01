@@ -4,6 +4,10 @@ import 'package:flutter/widgets.dart';
 
 import 'src/builders/index.dart';
 
+typedef void OnPageTurnCallback(int page);
+typedef void OnLastPageCallback();
+typedef void OnFirstPageCallback();
+
 class PageTurn extends StatefulWidget {
   const PageTurn({
     Key key,
@@ -14,6 +18,9 @@ class PageTurn extends StatefulWidget {
     this.initialIndex = 0,
     this.lastPage,
     this.showDragCutoff = false,
+    this.onPageTurnCallback,
+    this.onLastPageCallback,
+    this.onFirstPageCallback,
   }) : super(key: key);
 
   final Color backgroundColor;
@@ -23,6 +30,9 @@ class PageTurn extends StatefulWidget {
   final Widget lastPage;
   final bool showDragCutoff;
   final double cutoff;
+  final OnPageTurnCallback onPageTurnCallback;
+  final OnLastPageCallback onLastPageCallback;
+  final OnFirstPageCallback onFirstPageCallback;
 
   @override
   PageTurnState createState() => PageTurnState();
@@ -93,6 +103,7 @@ class PageTurnState extends State<PageTurn> with TickerProviderStateMixin {
     if (_isForward == null) {
       if (details.delta.dx > 0) {
         _isForward = false;
+        widget.onFirstPageCallback();
       } else {
         _isForward = true;
       }
@@ -111,11 +122,10 @@ class PageTurnState extends State<PageTurn> with TickerProviderStateMixin {
             _controllers[pageNumber].value <= (widget.cutoff + 0.15)) {
           await nextPage();
         } else {
+          widget?.onLastPageCallback();
           await _controllers[pageNumber].forward();
         }
       } else {
-        // print(
-        //     'Val:${_controllers[pageNumber - 1].value} -> ${widget.cutoff + 0.28}');
         if (!_isFirstPage &&
             _controllers[pageNumber - 1].value >= widget.cutoff) {
           await previousPage();
@@ -132,25 +142,32 @@ class PageTurnState extends State<PageTurn> with TickerProviderStateMixin {
   }
 
   Future nextPage() async {
-    print('Next Page..');
-    await _controllers[pageNumber].reverse();
-    if (mounted)
-      setState(() {
-        pageNumber++;
-      });
+    if (!_isLastPage) {
+      await _controllers[pageNumber].reverse();
+      if (mounted) {
+        setState(() {
+          pageNumber++;
+        });
+
+        widget.onPageTurnCallback(pageNumber);
+      }
+    }
   }
 
   Future previousPage() async {
-    print('Previous Page..');
-    await _controllers[pageNumber - 1].forward();
-    if (mounted)
-      setState(() {
-        pageNumber--;
-      });
+    if (!_isFirstPage) {
+      await _controllers[pageNumber - 1].forward();
+      if (mounted) {
+        setState(() {
+          pageNumber--;
+        });
+
+        widget.onPageTurnCallback(pageNumber);
+      }
+    }
   }
 
   Future goToPage(int index) async {
-    print('Navigate Page ${index + 1}..');
     if (mounted)
       setState(() {
         pageNumber = index;
@@ -159,7 +176,6 @@ class PageTurnState extends State<PageTurn> with TickerProviderStateMixin {
       if (i == index) {
         _controllers[i].forward();
       } else if (i < index) {
-        // _controllers[i].value = 0;
         _controllers[i].reverse();
       } else {
         if (_controllers[i].status == AnimationStatus.reverse)
@@ -200,7 +216,9 @@ class PageTurnState extends State<PageTurn> with TickerProviderStateMixin {
                             : null,
                         child: GestureDetector(
                           behavior: HitTestBehavior.opaque,
-                          onTap: _isFirstPage ? null : previousPage,
+                          onTap: _isFirstPage
+                              ? widget?.onFirstPageCallback
+                              : previousPage,
                         ),
                       ),
                     ),
@@ -212,7 +230,9 @@ class PageTurnState extends State<PageTurn> with TickerProviderStateMixin {
                             : null,
                         child: GestureDetector(
                           behavior: HitTestBehavior.opaque,
-                          onTap: _isLastPage ? null : nextPage,
+                          onTap: _isLastPage
+                              ? widget?.onLastPageCallback
+                              : nextPage,
                         ),
                       ),
                     ),
