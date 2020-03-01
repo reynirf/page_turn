@@ -20,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: PageTurn(
         key: _controller,
+        cutoff: 0.5,
         backgroundColor: Colors.white,
         showDragCutoff: false,
         onPageTurnCallback: (pageNum) {
@@ -33,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         lastPage: Container(child: Center(child: Text('Last Page!'))),
         children: <Widget>[
-          for (var i = 0; i < 5; i++) AlicePage(page: i),
+          for (var i = 0; i < 15; i++) AlicePage(page: i),
         ],
       ),
       floatingActionButton: FloatingActionButton(

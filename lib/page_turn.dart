@@ -103,7 +103,6 @@ class PageTurnState extends State<PageTurn> with TickerProviderStateMixin {
     if (_isForward == null) {
       if (details.delta.dx > 0) {
         _isForward = false;
-        widget.onFirstPageCallback();
       } else {
         _isForward = true;
       }
@@ -122,8 +121,8 @@ class PageTurnState extends State<PageTurn> with TickerProviderStateMixin {
             _controllers[pageNumber].value <= (widget.cutoff + 0.15)) {
           await nextPage();
         } else {
-          widget?.onLastPageCallback();
           await _controllers[pageNumber].forward();
+          if (_isLastPage) widget?.onLastPageCallback();
         }
       } else {
         if (!_isFirstPage &&
@@ -132,6 +131,7 @@ class PageTurnState extends State<PageTurn> with TickerProviderStateMixin {
         } else {
           if (_isFirstPage) {
             await _controllers[pageNumber].forward();
+            if (_isFirstPage) widget.onFirstPageCallback();
           } else {
             await _controllers[pageNumber - 1].reverse();
           }
@@ -149,7 +149,7 @@ class PageTurnState extends State<PageTurn> with TickerProviderStateMixin {
           pageNumber++;
         });
 
-        widget.onPageTurnCallback(pageNumber);
+        widget?.onPageTurnCallback(pageNumber);
       }
     }
   }
@@ -162,7 +162,7 @@ class PageTurnState extends State<PageTurn> with TickerProviderStateMixin {
           pageNumber--;
         });
 
-        widget.onPageTurnCallback(pageNumber);
+        widget?.onPageTurnCallback(pageNumber);
       }
     }
   }
